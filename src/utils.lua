@@ -257,7 +257,9 @@ function SMODS.juice_up_blind()
     G.GAME.blind:juice_up()
 end
 
+-- @deprecated
 function SMODS.eval_this(_card, effects)
+    sendWarnMessage('SMODS.eval_this is deprecated. All calculation stages now support returning effects directly. Effects evaluated using this function are out of order and may not use the correct sound pitch.', 'Util')
     if effects then
         local extras = { mult = false, hand_chips = false }
         if effects.mult_mod then
@@ -273,7 +275,8 @@ function SMODS.eval_this(_card, effects)
         if effects.message then
             card_eval_status_text(_card, 'jokers', nil, nil, nil, effects)
         end
-        percent = percent + 0.08
+        -- percent = percent + 0.08
+        -- Removed because it's not used and crashes for contexts outside of evaluate_play
     end
 end
 
@@ -970,8 +973,8 @@ end
 -- This function handles the calculation of each effect returned to evaluate play.
 -- Can easily be hooked to add more calculation effects ala Talisman
 SMODS.calculate_individual_effect = function(effect, scored_card, percent, key, amount, from_edition)
+    if effect.card and effect.card ~= scored_card then juice_card(effect.card) end
     if (key == 'chips' or key == 'h_chips' or key == 'chip_mod') and amount then 
-        if effect.card then juice_card(effect.card) end
         hand_chips = mod_chips(hand_chips + amount)
         update_hand_text({delay = 0}, {chips = hand_chips, mult = mult})
         if not effect.remove_default_message then
@@ -991,7 +994,6 @@ SMODS.calculate_individual_effect = function(effect, scored_card, percent, key, 
     end
 
     if (key == 'mult' or key == 'h_mult' or key == 'mult_mod') and amount then 
-        if effect.card then juice_card(effect.card) end
         mult = mod_mult(mult + amount)
         update_hand_text({delay = 0}, {chips = hand_chips, mult = mult})
         if not effect.remove_default_message then
@@ -1011,7 +1013,6 @@ SMODS.calculate_individual_effect = function(effect, scored_card, percent, key, 
     end
     
     if (key == 'p_dollars' or key == 'dollars' or key == 'h_dollars') and amount then 
-        if effect.card then juice_card(effect.card) end
         ease_dollars(amount)
         if not effect.remove_default_message then
             if effect.dollar_message then
@@ -1024,7 +1025,6 @@ SMODS.calculate_individual_effect = function(effect, scored_card, percent, key, 
     end
     
     if (key == 'x_mult' or key == 'xmult' or key == 'x_mult_mod' or key == 'Xmult_mod') and amount ~= 1 then 
-        if effect.card then juice_card(effect.card) end
         mult = mod_mult(mult * amount)
         update_hand_text({delay = 0}, {chips = hand_chips, mult = mult})
         if not effect.remove_default_message then
