@@ -135,13 +135,7 @@ Set `prefix_config.key = false` on your object instead.]]):format(obj.key), obj.
             if type(self.dependencies) == 'string' then self.dependencies = { self.dependencies } end
             for _, v in ipairs(self.dependencies) do
                 self.mod.optional_dependencies[v] = true
-                local found_mods = SMODS.find_mod(v)
-                for _, mod in ipairs(found_mods) do
-                    if not mod.can_load then
-                        keep = false
-                    end
-                end
-                if #found_mods == 0 then keep = false end
+                if not next(SMODS.find_mod(v)) then keep = false end
             end
         end
         return keep
